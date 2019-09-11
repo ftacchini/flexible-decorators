@@ -1,0 +1,38 @@
+{
+  "name": "flexible-decorators",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "test": "npm run unit-test && npm run integration-test",
+    "unit-test": "jasmine JASMINE_CONFIG_PATH=jasmine.unit-test.json",
+    "integration-test": "jasmine JASMINE_CONFIG_PATH=jasmine.integration-test.json",
+    "build": "rimraf dist && rimraf dts && tsc",
+    "version-minor": "npm version minor && git push && git push --tags",
+    "version-patch": "npm version patch && git push && git push --tags",
+    "version-major": "npm version major && git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ftacchini/flexible-decorators.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ftacchini/flexible-decorators/issues"
+  },
+  "homepage": "https://github.com/ftacchini/flexible-decorators#readme",
+  "dependencies": {
+    "flexible-core": "0.0.15",
+    "include-all": "^4.0.3",
+    "lodash": "^4.17.15",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^3.4.0",
+    "flexible-dummy-source": "0.0.3",
+    "jasmine": "^3.4.0",
+    "rimraf": "^3.0.0",
+    "typescript": "^3.6.2"
+  }
+}
