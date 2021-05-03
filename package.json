@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/ftacchini/flexible-decorators#readme",
   "dependencies": {
-    "flexible-core": "0.0.15",
+    "flexible-core": "0.0.17",
     "include-all": "^4.0.3",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13"

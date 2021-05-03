@@ -1,5 +1,5 @@
-import { ControllerRecipe } from "./controller-recipe";
+import { Type } from "flexible-core";
 
 export interface ControllerLoader {
-    loadControllers() : Promise<ControllerRecipe[]>;
+    loadControllers() : Promise<Type<object>[]>;
 }

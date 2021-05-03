@@ -1,18 +1,26 @@
 import { injectable } from 'inversify';
 import { CONTROLLER_KEY } from "./decorator-keys";
-import { ControllerConfig } from './controller-config';
+import { FlexibleFilter, Type, FilterConfiguration } from 'flexible-core';
 
-export const Controller = function attributeDefinition(
-    configuration?: ControllerConfig) {
+export const Controller = function attributeDefinition<T extends (FlexibleFilter | undefined)>(
+    singleton: boolean = false,
+    filter?: Type<T>,
+    configuration?: FilterConfiguration<T>) {
 
     return (target: any) => {
         injectable()(target);
 
-        if (!Reflect.hasMetadata(CONTROLLER_KEYS, target)) {
-            Reflect.defineMetadata(CONTROLLER_KEYS, [], target);
+        if (!Reflect.hasMetadata(CONTROLLER_KEY, target)) {
+            Reflect.defineMetadata(CONTROLLER_KEY, [], target);
         }
 
-        var controllers = Reflect.getMetadata(CONTROLLER_KEYS, target);
-        controllers.push(configuration);
+        var controllers: ControllerDefinition<T>[] = Reflect.getMetadata(CONTROLLER_KEY, target);
+        controllers.push({ singleton: singleton, filter: filter, configuration: configuration });
     }
+}
+
+export interface ControllerDefinition<T extends (FlexibleFilter | undefined)> {
+    readonly singleton: boolean;
+    readonly filter?: Type<T>,
+    readonly configuration?: FilterConfiguration<T>;
 }

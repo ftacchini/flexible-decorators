@@ -1,9 +1,7 @@
 import "reflect-metadata"
 import { ControllerLoader } from "./controller-loader";
-import { flatten, union, map, filter, each, values } from "lodash";
-import { CONTROLLER_KEY } from "../decorators/decorator-keys";
-import { ControllerConfig } from "../decorators/controller-config";
-import { ControllerRecipe } from "./controller-recipe";
+import { flatten, union, filter, each, values } from "lodash";
+import { Type } from "flexible-core";
 
 const includeAll = require("include-all");
 const path = require("path");
@@ -17,7 +15,7 @@ export class PathControllerLoader implements ControllerLoader {
         
         }
 
-    public async loadControllers() : Promise<ControllerRecipe[]> {
+    public async loadControllers() : Promise<Type<object>[]> {
         
         let controllerFiles = includeAll(<any>{
             dirname: path.join(process.cwd(), this.baseDir || ""),
@@ -26,23 +24,12 @@ export class PathControllerLoader implements ControllerLoader {
             flatten: true
         });
 
-        let controllers: any[] = [];
+        let candidateControllers: any[] = [];
         
         each(values(controllerFiles), (exportedData: any) => {
-
-            let controllerRecipesArrays =  map<any, any[]>(exportedData, (value: any) => {
-                let metadata = Reflect.getMetadata(CONTROLLER_KEY, value);
-                return metadata && metadata.length && metadata.map((config: ControllerConfig) => { 
-                    return { config: config, target: value }
-                });
-            });
-
-            let dirtyControllersRecipes = flatten(controllerRecipesArrays); 
-            let controllerRecipes = filter(dirtyControllersRecipes, value => value);
-            
-            controllers = union(controllers, controllerRecipes);
+            candidateControllers = union(candidateControllers, filter(flatten(exportedData), value => value));
         });
         
-        return controllers;
+        return candidateControllers;
     }
 }

@@ -1,42 +1,166 @@
-import { FlexibleFramework, FlexiblePipelineDocument, Type } from "flexible-core";
+import {
+    FlexibleExtractor,
+    FlexibleFilter,
+    FlexibleFilterRecipe,
+    FlexibleFramework,
+    FlexibleMiddlewareDocument,
+    FlexiblePipelineDocument,
+    FlexibleRecipe,
+    FlexibleRecipeFactory,
+    FLEXIBLE_APP_TYPES,
+    Type
+} from "flexible-core";
 import { injectable, inject } from "inversify";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
 import { ControllerLoader } from "./controller-loader/controller-loader";
-import { ControllerConfig } from "./decorators/controller-config";
 import { flatten } from "lodash";
+import { CONTROLLER_KEY, EXTRACTOR_KEY, MIDDLEWARE_KEY, ROUTE_KEY } from "./decorators/decorator-keys";
+import { ControllerDefinition } from "./decorators/controller";
+import { MiddlewareDefinition } from "./decorators/middleware";
+import { ActivationContextProvider } from "./activation-context-provider";
+import { RouteDefinition } from "./decorators/route";
+import { ExtractorDefinition } from "./decorators/extractor";
 
 @injectable()
 export class DecoratorsFramework implements FlexibleFramework {
 
     constructor(
-        @inject(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER) private controllerLoader: ControllerLoader
-        ) {
+        @inject(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER) private controllerLoader: ControllerLoader,
+        @inject(FLEXIBLE_APP_TYPES.RECIPE_FACTORY) private recipeFactory: FlexibleRecipeFactory,
 
+    ) {
     }
 
     public async createPipelineDefinitions(): Promise<FlexiblePipelineDocument[]> {
-        let controllerRecipes = await this.controllerLoader.loadControllers();
+        let candidateControllers = await this.controllerLoader.loadControllers();
 
-        return controllerRecipes.map(recipe => {
-            return this.createPipelineDocument(recipe.target, recipe.config)
+        let controllers = candidateControllers.filter(candidateController => {
+            return Reflect.hasMetadata(CONTROLLER_KEY, candidateController);
         })
-    }
 
-    private createPipelineDocument(target: Type<any>, config: ControllerConfig): FlexiblePipelineDocument {
-        let activationContext = 
-        return null;
-    }
+        let pipelineDocuments = flatten(controllers.map(controller => {
+            let controllerDefinitions: ControllerDefinition<FlexibleFilter | undefined>[] = Reflect.getMetadata(CONTROLLER_KEY, controller);
 
-    
-    private readRoutes(target: any) {
-        var properties = Object.getOwnPropertyNames(target.prototype);
-
-        var routeBuilders = flatten(properties.map(property => {
-            return (this.metadataTags, target.prototype, property);
+            return flatten(controllerDefinitions.map(controllerDefinition => {
+                return this.createPipelineDocuments(controller, controllerDefinition);
+            }));
         }));
 
-        return routeBuilders.filter(routeFactory => routeFactory)
-                            .map(routeFactory => routeFactory(this.container))
-                            .filter(route => route && route.supportsRouter(router));
+        return pipelineDocuments;
+    }
+
+    private createPipelineDocuments(
+        target: Type<any>,
+        controllerDefinition: ControllerDefinition<FlexibleFilter | undefined>): FlexiblePipelineDocument[] {
+
+        let candidateRoutes = Object.getOwnPropertyNames(target.prototype);
+
+        let routes = flatten(candidateRoutes.filter(candidateRoute => {
+            return Reflect.hasMetadata(ROUTE_KEY, target, candidateRoute);
+        }));
+
+        return routes.map(route => {
+            return {
+                middlewareStack: this.createMiddlewareStack(target, route, controllerDefinition),
+                filterStack: this.createFilterStack(target, route, controllerDefinition)
+            };
+        });
+    }
+
+    private createMiddlewareStack(
+        target: Type<any>,
+        route: string,
+        controllerDefinition: ControllerDefinition<FlexibleFilter>): FlexibleMiddlewareDocument[] {
+
+        const [controllerBefore, controllerAfter] = this.createMiddlewareDocuments(target)
+        const [routeBefore, routeAfter] = this.createMiddlewareDocuments(target, route);
+
+        let routeMiddleware = {
+            activationContext: ActivationContextProvider(
+                target,
+                {},
+                route,
+                controllerDefinition.singleton,
+                this.recipeFactory
+            ),
+            extractorRecipes: this.createExtractorRecipes(target, route)
+        };
+
+        return [...controllerBefore, ...routeBefore, routeMiddleware, ...routeAfter, ...controllerAfter];
+    }
+
+    private createMiddlewareDocuments(target: Type<any>, property?: string): [FlexibleMiddlewareDocument[], FlexibleMiddlewareDocument[]] {
+        if (!Reflect.hasMetadata(MIDDLEWARE_KEY, target, property)) {
+            return [[], []];
+        }
+
+        let middlewareDefinitions: MiddlewareDefinition<object>[] = Reflect.getMetadata(MIDDLEWARE_KEY, target, property);
+
+        return middlewareDefinitions
+            .map(middlewareDefinition => {
+
+                let activationContext = ActivationContextProvider(
+                    middlewareDefinition.middleware,
+                    middlewareDefinition.config,
+                    middlewareDefinition.method,
+                    middlewareDefinition.singleton,
+                    this.recipeFactory
+                );
+
+                let extractorRecipes = this.createExtractorRecipes(middlewareDefinition.middleware,  middlewareDefinition.method);
+
+                return {
+                    activationContext: activationContext,
+                    extractorRecipes: extractorRecipes,
+                    priority: middlewareDefinition.priority
+                }
+            })
+            .sort(middlewareDefinition => middlewareDefinition.priority)
+            .reduce((result, element) => {
+                result[element.priority <= 0 ? 0 : 1].push(element); 
+                return result;
+            }, [[], []]);
+    }
+
+    private createFilterStack(
+        target: Type<any>,
+        route: string,
+        controllerDefinition: ControllerDefinition<FlexibleFilter>): (FlexibleFilterRecipe<FlexibleFilter> | FlexibleFilterRecipe<FlexibleFilter>[])[] {
+
+        let routeDefinitions: RouteDefinition<FlexibleFilter | undefined>[] = Reflect.getMetadata(ROUTE_KEY, target, route);
+        let filterStack: (FlexibleFilterRecipe<FlexibleFilter> | FlexibleFilterRecipe<FlexibleFilter>[])[] = [];
+
+        if (controllerDefinition.filter) {
+            filterStack.push({
+                configuration: controllerDefinition.configuration,
+                type: controllerDefinition.filter
+            });
+        }
+
+        filterStack.push.apply(routeDefinitions.map(routeDefinition => ({
+            configuration: routeDefinition.configuration,
+            type: routeDefinition.filter
+        })));
+
+        return filterStack;
+    }
+
+    private createExtractorRecipes(target: Type<any>, property: string): {
+        [paramIndex: number]: FlexibleRecipe<FlexibleExtractor> | FlexibleRecipe<FlexibleExtractor>[];
+    } {
+        let extractorDefinitions: ExtractorDefinition<FlexibleExtractor>[] = Reflect.getMetadata(EXTRACTOR_KEY, target, property);
+
+        let extractors:  {
+            [paramIndex: number]: FlexibleRecipe<FlexibleExtractor> | FlexibleRecipe<FlexibleExtractor>[];
+        } = {};
+
+        extractorDefinitions.forEach(extractorDefinition => {
+            extractors[extractorDefinition.index] = {
+                configuration: extractorDefinition.configuration,
+                type: extractorDefinition.extractor
+            }
+        })
+
+        return extractors;
     }
 }

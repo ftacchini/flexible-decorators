@@ -1,12 +1,12 @@
-import { ControllerRecipe } from "./controller-recipe";
+import { Type } from "flexible-core";
 
 export class ExplicitControllerLoader {
 
-    constructor(private controllerRecipes: ControllerRecipe[]) {
+    constructor(private candidateControllers: Type<object>[]) {
     }
 
-    public async loadControllers(): Promise<ControllerRecipe[]>{
-        return this.controllerRecipes;
+    public async loadControllers(): Promise<Type<object>[]>{
+        return this.candidateControllers;
     }
 
 }
