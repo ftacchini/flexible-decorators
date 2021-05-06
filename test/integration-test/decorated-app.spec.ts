@@ -9,7 +9,7 @@ import { DummyEventSource } from "flexible-dummy-source";
 import { AsyncContainerModule } from "inversify";
 import { DecoratorsFrameworkModuleBuilder } from "../../src/decorators-framework-module-builder"
 import { ExplicitControllerLoader } from "../../src";
-import { BasicController } from "./basic-controller";
+import { BasicController, SingletonController } from "./basic-controller";
 
 describe(`DecoratedApp`, () => {
 
@@ -26,7 +26,10 @@ describe(`DecoratedApp`, () => {
         };
 
         let frameworkModule = DecoratorsFrameworkModuleBuilder.instance
-            .withControllerLoader(new ExplicitControllerLoader([BasicController]))
+            .withControllerLoader(new ExplicitControllerLoader([
+                BasicController,
+                SingletonController
+            ]))
             .build();
 
         app = FlexibleAppBuilder.instance
@@ -47,7 +50,7 @@ describe(`DecoratedApp`, () => {
         done();
     })
 
-    it("should respond to route request", async (done) => {
+    it("should respond to route request with response", async (done) => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -57,12 +60,62 @@ describe(`DecoratedApp`, () => {
 
         const response = await eventSource.generateEvent({
             data: data,
-            eventType: "dummy",
+            eventType: "basic",
             routeData: routeData
         });
 
         //ASSERT
         expect(response[0].responseStack[0]).toBe(data);
+        done();
+    })
+    
+    it("should respond to route request outside of singleton scope", async (done) => {
+        //ARRANGE
+        const data = { data: "data" };
+        const routeData = { routeData: "routeData" };
+
+        //ACT
+        await app.run();
+
+        await eventSource.generateEvent({
+            data: data,
+            eventType: "basic",
+            routeData: routeData
+        });
+
+        const response = await eventSource.generateEvent({
+            data: data,
+            eventType: "basic",
+            routeData: routeData
+        });
+
+        //ASSERT
+        expect(response[0].responseStack[0].callNumber).toBe(1);
+        done();
+    })
+
+    it("should respond to route request in singleton scope", async (done) => {
+        //ARRANGE
+        const data = { data: "data" };
+        const routeData = { routeData: "routeData" };
+
+        //ACT
+        await app.run();
+
+        await eventSource.generateEvent({
+            data: data,
+            eventType: "singleton",
+            routeData: routeData
+        });
+
+        const response = await eventSource.generateEvent({
+            data: data,
+            eventType: "singleton",
+            routeData: routeData
+        });
+
+        //ASSERT
+        expect(response[0].responseStack[0].callNumber).toBe(2);
         done();
     })
 
