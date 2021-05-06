@@ -1,11 +1,12 @@
-import "reflect-metadata"
 import { ControllerLoader } from "./controller-loader";
 import { flatten, union, filter, each, values } from "lodash";
 import { Type } from "flexible-core";
+import { injectable } from "inversify";
 
 const includeAll = require("include-all");
 const path = require("path");
 
+@injectable()
 export class PathControllerLoader implements ControllerLoader {
     
     constructor(

@@ -6,27 +6,26 @@ import {
     FlexibleMiddlewareDocument,
     FlexiblePipelineDocument,
     FlexibleRecipe,
-    FlexibleRecipeFactory,
-    FLEXIBLE_APP_TYPES,
     Type
 } from "flexible-core";
 import { injectable, inject } from "inversify";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
-import { ControllerLoader } from "./controller-loader/controller-loader";
+import { ControllerLoader } from "./controller/controller-loader";
 import { flatten } from "lodash";
 import { CONTROLLER_KEY, EXTRACTOR_KEY, MIDDLEWARE_KEY, ROUTE_KEY } from "./decorators/decorator-keys";
 import { ControllerDefinition } from "./decorators/controller";
 import { MiddlewareDefinition } from "./decorators/middleware";
 import { ActivationContextProvider } from "./activation-context-provider";
 import { RouteDefinition } from "./decorators/route";
-import { ExtractorDefinition } from "./decorators/extractor";
+import { ExtractorDefinition } from "./decorators/parameter";
+import { ControllerFactory } from "./controller";
 
 @injectable()
 export class DecoratorsFramework implements FlexibleFramework {
 
     constructor(
         @inject(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER) private controllerLoader: ControllerLoader,
-        @inject(FLEXIBLE_APP_TYPES.RECIPE_FACTORY) private recipeFactory: FlexibleRecipeFactory,
+        @inject(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_FACTORY) private recipeFactory: ControllerFactory,
 
     ) {
     }
@@ -35,11 +34,11 @@ export class DecoratorsFramework implements FlexibleFramework {
         let candidateControllers = await this.controllerLoader.loadControllers();
 
         let controllers = candidateControllers.filter(candidateController => {
-            return Reflect.hasMetadata(CONTROLLER_KEY, candidateController);
+            return this.hasMetadata(CONTROLLER_KEY, candidateController);
         })
 
         let pipelineDocuments = flatten(controllers.map(controller => {
-            let controllerDefinitions: ControllerDefinition<FlexibleFilter | undefined>[] = Reflect.getMetadata(CONTROLLER_KEY, controller);
+            let controllerDefinitions: ControllerDefinition<FlexibleFilter | undefined>[] = this.getMetadata(CONTROLLER_KEY, controller);
 
             return flatten(controllerDefinitions.map(controllerDefinition => {
                 return this.createPipelineDocuments(controller, controllerDefinition);
@@ -56,7 +55,7 @@ export class DecoratorsFramework implements FlexibleFramework {
         let candidateRoutes = Object.getOwnPropertyNames(target.prototype);
 
         let routes = flatten(candidateRoutes.filter(candidateRoute => {
-            return Reflect.hasMetadata(ROUTE_KEY, target, candidateRoute);
+            return this.hasMetadata(ROUTE_KEY, target, candidateRoute);
         }));
 
         return routes.map(route => {
@@ -90,11 +89,11 @@ export class DecoratorsFramework implements FlexibleFramework {
     }
 
     private createMiddlewareDocuments(target: Type<any>, property?: string): [FlexibleMiddlewareDocument[], FlexibleMiddlewareDocument[]] {
-        if (!Reflect.hasMetadata(MIDDLEWARE_KEY, target, property)) {
+        if (!this.hasMetadata(MIDDLEWARE_KEY, target, property)) {
             return [[], []];
         }
 
-        let middlewareDefinitions: MiddlewareDefinition<object>[] = Reflect.getMetadata(MIDDLEWARE_KEY, target, property);
+        let middlewareDefinitions: MiddlewareDefinition<object>[] = this.getMetadata(MIDDLEWARE_KEY, target, property);
 
         return middlewareDefinitions
             .map(middlewareDefinition => {
@@ -127,7 +126,7 @@ export class DecoratorsFramework implements FlexibleFramework {
         route: string,
         controllerDefinition: ControllerDefinition<FlexibleFilter>): (FlexibleFilterRecipe<FlexibleFilter> | FlexibleFilterRecipe<FlexibleFilter>[])[] {
 
-        let routeDefinitions: RouteDefinition<FlexibleFilter | undefined>[] = Reflect.getMetadata(ROUTE_KEY, target, route);
+        let routeDefinitions: RouteDefinition<FlexibleFilter | undefined>[] = this.getMetadata(ROUTE_KEY, target, route);
         let filterStack: (FlexibleFilterRecipe<FlexibleFilter> | FlexibleFilterRecipe<FlexibleFilter>[])[] = [];
 
         if (controllerDefinition.filter) {
@@ -137,7 +136,7 @@ export class DecoratorsFramework implements FlexibleFramework {
             });
         }
 
-        filterStack.push.apply(routeDefinitions.map(routeDefinition => ({
+        filterStack.push(...routeDefinitions.map(routeDefinition => ({
             configuration: routeDefinition.configuration,
             type: routeDefinition.filter
         })));
@@ -148,7 +147,7 @@ export class DecoratorsFramework implements FlexibleFramework {
     private createExtractorRecipes(target: Type<any>, property: string): {
         [paramIndex: number]: FlexibleRecipe<FlexibleExtractor> | FlexibleRecipe<FlexibleExtractor>[];
     } {
-        let extractorDefinitions: ExtractorDefinition<FlexibleExtractor>[] = Reflect.getMetadata(EXTRACTOR_KEY, target, property);
+        let extractorDefinitions: ExtractorDefinition<FlexibleExtractor>[] = this.getMetadata(EXTRACTOR_KEY, target, property);
 
         let extractors:  {
             [paramIndex: number]: FlexibleRecipe<FlexibleExtractor> | FlexibleRecipe<FlexibleExtractor>[];
@@ -162,5 +161,13 @@ export class DecoratorsFramework implements FlexibleFramework {
         })
 
         return extractors;
+    }
+
+    private hasMetadata(key: Symbol, target: any, property?: string) {
+        return Reflect.getMetadata(key, property ? target.prototype : target, property);
+    }
+
+    private getMetadata(key: Symbol, target: any, property?: string): any {
+        return Reflect.getMetadata(key, property ? target.prototype : target, property);
     }
 }

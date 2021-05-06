@@ -10,9 +10,9 @@ export const Route = function attributeDefinition<T extends (FlexibleFilter | un
             Reflect.defineMetadata(ROUTE_KEY, [], target, property);
         }
 
-        var routes: FlexibleFilterRecipe<T>[] = Reflect.getMetadata(ROUTE_KEY, target, property);
+        var routes: RouteDefinition<T>[] = Reflect.getMetadata(ROUTE_KEY, target, property);
         routes.push({ 
-            type: filter, 
+            filter: filter, 
             configuration: configuration});
     }
 }

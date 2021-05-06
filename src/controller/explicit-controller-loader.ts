@@ -1,5 +1,7 @@
 import { Type } from "flexible-core";
+import { injectable } from "inversify";
 
+@injectable()
 export class ExplicitControllerLoader {
 
     constructor(private candidateControllers: Type<object>[]) {

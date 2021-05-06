@@ -23,14 +23,14 @@
   },
   "homepage": "https://github.com/ftacchini/flexible-decorators#readme",
   "dependencies": {
-    "flexible-core": "0.0.17",
+    "flexible-core": "0.0.18",
     "include-all": "^4.0.3",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/jasmine": "^3.4.0",
-    "flexible-dummy-source": "0.0.3",
+    "flexible-dummy-source": "0.0.6",
     "jasmine": "^3.4.0",
     "rimraf": "^3.0.0",
     "typescript": "^3.6.2"

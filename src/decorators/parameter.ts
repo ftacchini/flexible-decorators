@@ -1,7 +1,7 @@
 import { EXTRACTOR_KEY } from "./decorator-keys";
 import { Type, FlexibleExtractor, ExtractorConfiguration } from "flexible-core";
 
-export const Extractor = function attributeDefinition<T extends FlexibleExtractor>(
+export const Param = function attributeDefinition<T extends FlexibleExtractor>(
     extractor?: Type<T>,
     configuration?: ExtractorConfiguration<T>) {
 
