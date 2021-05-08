@@ -9,7 +9,7 @@ import { DummyEventSource } from "flexible-dummy-source";
 import { AsyncContainerModule } from "inversify";
 import { DecoratorsFrameworkModuleBuilder } from "../../src/decorators-framework-module-builder"
 import { ExplicitControllerLoader } from "../../src";
-import { BasicController, SingletonController } from "./basic-controller";
+import { BasicController, MiddlewareController, SingletonController } from "./test-controllers";
 
 describe(`DecoratedApp`, () => {
 
@@ -28,7 +28,8 @@ describe(`DecoratedApp`, () => {
         let frameworkModule = DecoratorsFrameworkModuleBuilder.instance
             .withControllerLoader(new ExplicitControllerLoader([
                 BasicController,
-                SingletonController
+                SingletonController,
+                MiddlewareController
             ]))
             .build();
 
@@ -116,6 +117,29 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0].callNumber).toBe(2);
+        done();
+    })
+
+    it("should execute middleware before method", async (done) => {
+        //ARRANGE
+        const data = { data: "data" };
+        const routeData = { routeData: "routeData" };
+
+        //ACT
+        await app.run();
+
+        const response = await eventSource.generateEvent({
+            data: data,
+            eventType: "middleware",
+            routeData: routeData
+        });
+
+        //ASSERT
+        expect(response[0].responseStack[0]).toEqual({
+            configValue: "configValue",
+            eventType: "middleware"
+        });
+        expect(response[0].responseStack[1]).toEqual(data);
         done();
     })
 

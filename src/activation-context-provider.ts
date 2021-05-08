@@ -9,12 +9,22 @@ export function ActivationContextProvider<T extends object>(
     recipeFactory: ControllerFactory): FlexibleActivationContext {
 
     return {
-        activate: (...params: any[]) => {
+        activate: function(...params: any[]) {
 
-            var middleware: T = recipeFactory.createController({
-                configuration: configuration,
-                type: target
-            }, singleton);
+            var middleware: T;
+            
+            if(singleton) {
+                middleware = this.controller || (this.controller = recipeFactory.createController({
+                    configuration: configuration,
+                    type: target
+                }));
+            }
+            else {
+                middleware = recipeFactory.createController({
+                    configuration: configuration,
+                    type: target
+                })
+            }
 
             return (<any>middleware[method])(...params);
         }

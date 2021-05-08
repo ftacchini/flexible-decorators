@@ -12,16 +12,14 @@ export class ControllerFactory {
     }
 
     public createController<recipeType extends object>(
-        recipe: FlexibleRecipe<recipeType>,
-        singleton: boolean): recipeType {
+        recipe: FlexibleRecipe<recipeType>): recipeType {
         
         if(!recipe || !recipe.type) {
             throw RECIPE_HAS_NO_TYPE_ERROR;
         }
 
         if(!this.container.isBound(recipe.type.name)) {
-            const binding = this.container.bind(recipe.type.name).to(recipe.type);
-            singleton && binding.inSingletonScope();
+            this.container.bind(recipe.type.name).to(recipe.type);
         }
 
         var instance = this.container.get<recipeType>(recipe.type.name);
