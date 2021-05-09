@@ -9,7 +9,11 @@ import { DummyEventSource } from "flexible-dummy-source";
 import { AsyncContainerModule } from "inversify";
 import { DecoratorsFrameworkModuleBuilder } from "../../src/decorators-framework-module-builder"
 import { ExplicitControllerLoader } from "../../src";
-import { BasicController, MiddlewareController, SingletonController } from "./test-controllers";
+import { 
+    BasicController, 
+    RouteMiddlewareController, 
+    SingletonController, 
+    StackMiddlewareController } from "./test-controllers";
 
 describe(`DecoratedApp`, () => {
 
@@ -29,7 +33,8 @@ describe(`DecoratedApp`, () => {
             .withControllerLoader(new ExplicitControllerLoader([
                 BasicController,
                 SingletonController,
-                MiddlewareController
+                RouteMiddlewareController,
+                StackMiddlewareController
             ]))
             .build();
 
@@ -130,16 +135,76 @@ describe(`DecoratedApp`, () => {
 
         const response = await eventSource.generateEvent({
             data: data,
-            eventType: "middleware",
+            eventType: "middlewareBefore",
             routeData: routeData
         });
 
         //ASSERT
         expect(response[0].responseStack[0]).toEqual({
             configValue: "configValue",
-            eventType: "middleware"
+            eventType: "middlewareBefore"
         });
         expect(response[0].responseStack[1]).toEqual(data);
+        done();
+    })
+
+    it("should execute middleware after method", async (done) => {
+        //ARRANGE
+        const data = { data: "data" };
+        const routeData = { routeData: "routeData" };
+
+        //ACT
+        await app.run();
+
+        const response = await eventSource.generateEvent({
+            data: data,
+            eventType: "middlewareAfter",
+            routeData: routeData
+        });
+
+        //ASSERT
+        expect(response[0].responseStack[0]).toEqual(data);
+        expect(response[0].responseStack[1]).toEqual({
+            configValue: "configValue",
+            eventType: "middlewareAfter"
+        });
+        done();
+    })
+
+    it("should execute middleware stack", async (done) => {
+        //ARRANGE
+        const data = { data: "data" };
+        const routeData = { routeData: "routeData" };
+
+        //ACT
+        await app.run();
+
+        const response = await eventSource.generateEvent({
+            data: data,
+            eventType: "stackMiddleware",
+            routeData: routeData
+        });
+
+        //ASSERT
+        expect(response[0].responseStack[0]).toEqual({
+            configValue: "1",
+            eventType: "stackMiddleware"
+        });
+        expect(response[0].responseStack[1]).toEqual({
+            configValue: "2",
+            eventType: "stackMiddleware"
+        });
+        
+        expect(response[0].responseStack[2]).toEqual(data);
+
+        expect(response[0].responseStack[3]).toEqual({
+            configValue: "3",
+            eventType: "stackMiddleware"
+        });
+        expect(response[0].responseStack[4]).toEqual({
+            configValue: "4",
+            eventType: "stackMiddleware"
+        });
         done();
     })
 

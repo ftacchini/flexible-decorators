@@ -4,9 +4,11 @@ import { Type } from "flexible-core";
 export const Middleware = function attributeDefinition<T extends object>(
     middleware: Type<T>,
     method: keyof T,
-    singleton: boolean = false,
-    priority: number = 0,
-    config: Partial<T> = {}) {
+    { singleton = false, priority = 0, config = {}}: {
+        singleton?: boolean,
+        priority?: number,
+        config?: Partial<T>
+    }) {
 
     return (target: any, property?: any) => {
         if (!Reflect.hasMetadata(MIDDLEWARE_KEY, target, property)) {

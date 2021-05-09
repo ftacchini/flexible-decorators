@@ -1,8 +1,8 @@
 import { EventData, IfEventIs } from "flexible-core";
-import { BeforeExecution, Controller, Param, Route } from "../../src";
+import { AfterExecution, BeforeExecution, Controller, Param, Route } from "../../src";
 import { TestMiddleware } from "./test-middleware";
 
-@Controller(false)
+@Controller()
 export class BasicController {
 
     private call: number = 0;
@@ -14,9 +14,9 @@ export class BasicController {
     }
 }
 
-@Controller(true)
+@Controller({ singleton: true })
 export class SingletonController {
-    
+
     private call: number = 0;
 
     @Route(IfEventIs, { eventType: "singleton" })
@@ -26,16 +26,37 @@ export class SingletonController {
     }
 }
 
-@Controller(false)
-export class MiddlewareController {
-    
+@Controller()
+export class RouteMiddlewareController {
+
     @BeforeExecution(
-        TestMiddleware, 
-        "execMiddleware", 
-        false, 
-        { configValue: "configValue" })
-    @Route(IfEventIs, { eventType: "middleware" })
-    public route(@Param(EventData) data: any) {
+        TestMiddleware,
+        "execMiddleware",
+        { singleton: false, config: { configValue: "configValue" } })
+    @Route(IfEventIs, { eventType: "middlewareBefore" })
+    public routeBefore(@Param(EventData) data: any) {
+        return data;
+    }
+
+    @AfterExecution(
+        TestMiddleware,
+        "execMiddleware",
+        { singleton: false, config: { configValue: "configValue" } })
+    @Route(IfEventIs, { eventType: "middlewareAfter" })
+    public routeAfter(@Param(EventData) data: any) {
+        return data;
+    }
+}
+
+@Controller({ filter: IfEventIs, configuration: { eventType: "stackMiddleware" } })
+@BeforeExecution(TestMiddleware, "execMiddleware", { singleton: false, config: { configValue: "1" } })
+@AfterExecution(TestMiddleware, "execMiddleware", { singleton: false, config: { configValue: "4" } })
+export class StackMiddlewareController {
+
+    @BeforeExecution(TestMiddleware, "execMiddleware", { singleton: false, config: { configValue: "2" } })
+    @AfterExecution(TestMiddleware, "execMiddleware", { singleton: false, config: { configValue: "3" } })
+    @Route(IfEventIs, { eventType: "stackMiddleware" })
+    public routeBefore(@Param(EventData) data: any) {
         return data;
     }
 }

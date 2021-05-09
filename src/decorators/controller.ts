@@ -3,9 +3,11 @@ import { CONTROLLER_KEY } from "./decorator-keys";
 import { FlexibleFilter, Type, FilterConfiguration } from 'flexible-core';
 
 export const Controller = function attributeDefinition<T extends (FlexibleFilter | undefined)>(
-    singleton: boolean = false,
-    filter?: Type<T>,
-    configuration?: FilterConfiguration<T>) {
+    { singleton = false, filter, configuration } : { 
+        singleton?: boolean,
+        filter?: Type<T>,
+        configuration?: FilterConfiguration<T> 
+    } = {}) {
 
     return (target: any) => {
         injectable()(target);
