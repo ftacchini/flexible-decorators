@@ -10,6 +10,11 @@ export const Route = function attributeDefinition<T extends (FlexibleFilter | un
             Reflect.defineMetadata(ROUTE_KEY, [], target, property);
         }
 
+        if(filter && (!configuration || !configuration.contextName)) {
+            configuration || (configuration = {});
+            configuration.contextName = property;
+        }
+
         var routes: RouteDefinition<T>[] = Reflect.getMetadata(ROUTE_KEY, target, property);
         routes.push({ 
             filter: filter, 

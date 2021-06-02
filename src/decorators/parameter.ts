@@ -1,5 +1,6 @@
 import { EXTRACTOR_KEY } from "./decorator-keys";
 import { Type, FlexibleExtractor, ExtractorConfiguration } from "flexible-core";
+import { JsHelper } from "./js-helper";
 
 export const Param = function attributeDefinition<T extends FlexibleExtractor>(
     extractor?: Type<T>,
@@ -11,6 +12,12 @@ export const Param = function attributeDefinition<T extends FlexibleExtractor>(
         }
 
         var routes: ExtractorDefinition<T>[] = Reflect.getMetadata(EXTRACTOR_KEY, target, property);
+
+        
+        if(extractor && (!configuration || !configuration.contextName)) {
+            configuration || (configuration = {});
+            configuration.contextName = JsHelper.instance.readFunctionParamNames(target[property])[index];
+        }
 
         routes.push({ 
             index: index,

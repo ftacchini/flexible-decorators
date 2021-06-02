@@ -2,7 +2,7 @@ import { FlexibleRecipe } from "flexible-core";
 import { injectable, inject, Container } from "inversify";
 import { DECORATORS_FRAMEWORK_TYPES } from "../decorators-framework-types";
 
-const RECIPE_HAS_NO_TYPE_ERROR = "A controller has no specified tpye and cannot be crafted";
+const RECIPE_HAS_NO_TYPE_ERROR = "A controller has no specified type and cannot be crafted";
 
 @injectable()
 export class ControllerFactory {

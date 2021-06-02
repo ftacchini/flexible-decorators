@@ -16,6 +16,11 @@ export const Controller = function attributeDefinition<T extends (FlexibleFilter
             Reflect.defineMetadata(CONTROLLER_KEY, [], target);
         }
 
+        if(filter && (!configuration || !configuration.contextName)) {
+            configuration || (configuration = {});
+            configuration.contextName = target.name.replace("Controller", "");
+        }
+
         var controllers: ControllerDefinition<T>[] = Reflect.getMetadata(CONTROLLER_KEY, target);
         controllers.push({ singleton: singleton, filter: filter, configuration: configuration });
     }
