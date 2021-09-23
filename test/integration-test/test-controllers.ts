@@ -1,6 +1,8 @@
 import { EventData, IfEventIs } from "flexible-core";
 import { AfterExecution, BeforeExecution, Controller, Param, Route } from "../../src";
 import { TestMiddleware } from "./test-middleware";
+import { inject } from "inversify";
+import { D1, D2 } from "./dependency-keys";
 
 @Controller()
 export class BasicController {
@@ -59,4 +61,21 @@ export class StackMiddlewareController {
     public routeBefore(@Param(EventData) data: any) {
         return data;
     }
+}
+
+@Controller()
+export class WithDependenciesController {
+
+    constructor(
+        @inject(D1) private d1: string,
+        @inject(D2) private d2: string
+    ) {
+        console.log("in constructor")
+    }
+
+    @Route(IfEventIs, { eventType: "withDependencies" })
+    public route() {
+        return `${this.d1}#${this.d2}`;
+    }
+
 }

@@ -24,7 +24,7 @@
   "homepage": "https://github.com/ftacchini/flexible-decorators#readme",
   "typings": "./dts/src/index.d.ts",
   "dependencies": {
-    "flexible-core": "0.0.18",
+    "flexible-core": "0.0.22",
     "include-all": "^4.0.3",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13"

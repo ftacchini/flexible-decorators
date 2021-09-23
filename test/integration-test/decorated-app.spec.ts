@@ -3,29 +3,49 @@ import "jasmine";
 import {
     FlexibleApp,
     FlexibleEventSourceModule,
-    FlexibleAppBuilder
+    FlexibleAppBuilder,
+    FlexibleModule
 } from "flexible-core";
 import { DummyEventSource } from "flexible-dummy-source";
-import { AsyncContainerModule } from "inversify";
+import { AsyncContainerModule, interfaces, Container } from "inversify";
 import { DecoratorsFrameworkModuleBuilder } from "../../src/decorators-framework-module-builder"
 import { ExplicitControllerLoader } from "../../src";
 import { 
     BasicController, 
     RouteMiddlewareController, 
     SingletonController, 
-    StackMiddlewareController } from "./test-controllers";
+    StackMiddlewareController, 
+    WithDependenciesController} from "./test-controllers";
+import { D1, D2 } from "./dependency-keys";
 
 describe(`DecoratedApp`, () => {
 
     let app: FlexibleApp;
     let eventSource: DummyEventSource;
+    let container: Container;
 
     beforeEach(async (done) => {
         eventSource = new DummyEventSource();
 
+        container = new Container();
+
+        let dependenciesModule: FlexibleModule = {
+            container: new AsyncContainerModule(async (
+                bind: interfaces.Bind,
+                unbind: interfaces.Unbind,
+                isBound: interfaces.IsBound,
+                rebind: interfaces.Rebind) => {
+                    bind(D1).toConstantValue(D1.toString());
+                    bind(D2).toConstantValue(D2.toString());
+            })
+        };
+
         let eventSourceModule: FlexibleEventSourceModule = {
             getInstance: () => eventSource,
-            container: new AsyncContainerModule(async () => { }),
+            container: new AsyncContainerModule(async (
+                bind: interfaces.Bind) => {
+
+                 }),
             isolatedContainer: new AsyncContainerModule(async () => { })
         };
 
@@ -34,13 +54,16 @@ describe(`DecoratedApp`, () => {
                 BasicController,
                 SingletonController,
                 RouteMiddlewareController,
-                StackMiddlewareController
+                StackMiddlewareController,
+                WithDependenciesController
             ]))
             .build();
 
         app = FlexibleAppBuilder.instance
+            .addModule(dependenciesModule)
             .addEventSource(eventSourceModule)
             .addFramework(frameworkModule)
+            .withContainer(container)
             .createApp();
 
         done();
@@ -205,6 +228,25 @@ describe(`DecoratedApp`, () => {
             configValue: "4",
             eventType: "stackMiddleware"
         });
+        done();
+    })
+    
+    it("should instanciate controller with dependencies correctly", async (done) => {
+        //ARRANGE
+        const data = { data: "data" };
+        const routeData = { routeData: "routeData" };
+        
+        //ACT
+        await app.run();
+
+        const response = await eventSource.generateEvent({
+            data: data,
+            eventType: "withDependencies",
+            routeData: routeData
+        });
+
+        //ASSERT
+        expect(response[0].responseStack[0]).toBe(`${D1.toString()}#${D2.toString()}`);
         done();
     })
 
