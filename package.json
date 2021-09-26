@@ -1,6 +1,6 @@
 {
   "name": "flexible-decorators",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/src/index.js",
   "scripts": {
@@ -24,16 +24,17 @@
   "homepage": "https://github.com/ftacchini/flexible-decorators#readme",
   "typings": "./dts/src/index.d.ts",
   "dependencies": {
-    "flexible-core": "0.0.22",
+    "@types/node": "^12.7.5",
+    "flexible-core": "0.1.0",
     "include-all": "^4.0.3",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/jasmine": "^3.4.0",
-    "flexible-dummy-source": "0.0.6",
+    "flexible-dummy-source": "0.1.1",
     "jasmine": "^3.4.0",
     "rimraf": "^3.0.0",
-    "typescript": "^3.6.2"
+    "typescript": "^4.2.4"
   }
 }

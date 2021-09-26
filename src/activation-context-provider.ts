@@ -9,11 +9,11 @@ export function ActivationContextProvider<T extends object>(
     recipeFactory: ControllerFactory): FlexibleActivationContext {
 
     return {
-        activate: function(...params: any[]) {
+        activate: function(
+            contextBinnacle: { [key: string]: string }, 
+            ...params: any[]) {
 
-            try {
             var middleware: T;
-            console.log("creating")
             
             if(singleton) {
                 middleware = this.controller || (this.controller = recipeFactory.createController({
@@ -27,12 +27,6 @@ export function ActivationContextProvider<T extends object>(
                     type: target
                 })
             }
-        }
-        catch(ex) {
-            console.log("exception")
-            console.log(ex);
-            console.log(JSON.stringify(ex));
-        }
 
             return (<any>middleware[method])(...params);
         }
