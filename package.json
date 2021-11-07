@@ -25,7 +25,7 @@
   "typings": "./dts/src/index.d.ts",
   "dependencies": {
     "@types/node": "^12.7.5",
-    "flexible-core": "0.1.0",
+    "flexible-core": "0.1.1",
     "include-all": "^4.0.3",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13"

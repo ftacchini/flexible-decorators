@@ -4,7 +4,8 @@ import {
     FlexibleApp,
     FlexibleEventSourceModule,
     FlexibleAppBuilder,
-    FlexibleModule
+    FlexibleModule,
+    SilentLoggerModule
 } from "flexible-core";
 import { DummyEventSource } from "flexible-dummy-source";
 import { AsyncContainerModule, interfaces, Container } from "inversify";
@@ -60,6 +61,7 @@ describe(`DecoratedApp`, () => {
             .build();
 
         app = FlexibleAppBuilder.instance
+            .withLogger(new SilentLoggerModule())
             .addModule(dependenciesModule)
             .addEventSource(eventSourceModule)
             .addFramework(frameworkModule)

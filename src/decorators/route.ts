@@ -2,7 +2,7 @@ import { ROUTE_KEY } from "./decorator-keys";
 import { FlexibleFilter, Type, FilterConfiguration, FlexibleFilterRecipe } from "flexible-core";
 
 export const Route = function attributeDefinition<T extends (FlexibleFilter | undefined)>(
-    filter?: Type<T>,
+    filter: Type<T>,
     configuration?: FilterConfiguration<T>) {
 
     return (target: any, property: any) => {

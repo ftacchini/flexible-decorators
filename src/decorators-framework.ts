@@ -114,7 +114,7 @@ export class DecoratorsFramework implements FlexibleFramework {
                     priority: middlewareDefinition.priority
                 }
             })
-            .sort(middlewareDefinition => middlewareDefinition.priority)
+            .sort((a,b) => a.priority - b.priority)
             .reduce((result, element) => {
                 result[element.priority <= 0 ? 0 : 1].push(element); 
                 return result;
