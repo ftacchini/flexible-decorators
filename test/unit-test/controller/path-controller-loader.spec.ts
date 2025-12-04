@@ -7,23 +7,22 @@ describe("PathControllerLoader", () => {
 
     describe("loadControllers", () => {
 
-        it("should load controllers from default pattern files", async (done) => {
+        it("should load controllers from default pattern files", async () => {
             //ARRANGE
             const pathControllerLoader = new PathControllerLoader();
 
             //ACT
             const controllers = await pathControllerLoader.loadControllers();
-            
+
             //ASSERT
             expect(controllers.map(c => c.name)).toEqual([
                 "MultipleController",
                 "MultipleController1",
                 "PatternController"
             ])
-            done()
         })
 
-        it("should load controllers from custom pattern files", async (done) => {
+        it("should load controllers from custom pattern files", async () => {
             //ARRANGE
             const pathControllerLoader = new PathControllerLoader(
                 "",
@@ -31,12 +30,11 @@ describe("PathControllerLoader", () => {
 
             //ACT
             const controllers = await pathControllerLoader.loadControllers();
-            
+
             //ASSERT
             expect(controllers.map(c => c.name)).toEqual([
                 "OtherPatternController"
             ])
-            done()
         })
     })
 })
