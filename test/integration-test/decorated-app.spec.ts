@@ -25,7 +25,7 @@ describe(`DecoratedApp`, () => {
     let eventSource: DummyEventSource;
     let container: Container;
 
-    beforeEach(async (done) => {
+    beforeEach(async () => {
         eventSource = new DummyEventSource();
 
         container = new Container();
@@ -68,20 +68,20 @@ describe(`DecoratedApp`, () => {
             .withContainer(container)
             .createApp();
 
-        done();
+        
     })
 
-    it("should start correctly", async (done) => {
+    it("should start correctly", async () => {
         //ARRANGE
         //ACT
         const result = await app.run();
 
         //ASSERT
         expect(result[0]).toEqual(true)
-        done();
+        
     })
 
-    it("should respond to route request with response", async (done) => {
+    it("should respond to route request with response", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -97,10 +97,10 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0]).toBe(data);
-        done();
+        
     })
     
-    it("should respond to route request outside of singleton scope", async (done) => {
+    it("should respond to route request outside of singleton scope", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -122,10 +122,10 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0].callNumber).toBe(1);
-        done();
+        
     })
 
-    it("should respond to route request in singleton scope", async (done) => {
+    it("should respond to route request in singleton scope", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -147,10 +147,10 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0].callNumber).toBe(2);
-        done();
+        
     })
 
-    it("should execute middleware before method", async (done) => {
+    it("should execute middleware before method", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -170,10 +170,10 @@ describe(`DecoratedApp`, () => {
             eventType: "middlewareBefore"
         });
         expect(response[0].responseStack[1]).toEqual(data);
-        done();
+        
     })
 
-    it("should execute middleware after method", async (done) => {
+    it("should execute middleware after method", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -193,10 +193,10 @@ describe(`DecoratedApp`, () => {
             configValue: "configValue",
             eventType: "middlewareAfter"
         });
-        done();
+        
     })
 
-    it("should execute middleware stack", async (done) => {
+    it("should execute middleware stack", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -230,10 +230,10 @@ describe(`DecoratedApp`, () => {
             configValue: "4",
             eventType: "stackMiddleware"
         });
-        done();
+        
     })
     
-    it("should instanciate controller with dependencies correctly", async (done) => {
+    it("should instanciate controller with dependencies correctly", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
@@ -249,7 +249,7 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0]).toBe(`${D1.toString()}#${D2.toString()}`);
-        done();
+        
     })
 
 });

@@ -2,8 +2,8 @@ import { ControllerLoader, PathControllerLoader } from "./controller";
 import { DecoratorsFrameworkModule } from "./decorators-framework-module";
 
 export class DecoratorsFrameworkModuleBuilder {
-    
-    private controllerLoader: ControllerLoader;
+
+    private controllerLoader!: ControllerLoader;
 
     private static _instance: DecoratorsFrameworkModuleBuilder;
     public static get instance() {
@@ -30,6 +30,6 @@ export class DecoratorsFrameworkModuleBuilder {
     }
 
     public reset() {
-        this.controllerLoader = null;
+        this.controllerLoader = null!;
     }
 }
