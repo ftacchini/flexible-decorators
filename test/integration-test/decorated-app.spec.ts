@@ -5,17 +5,17 @@ import {
     FlexibleEventSourceModule,
     FlexibleAppBuilder,
     FlexibleModule,
-    SilentLoggerModule
+    SilentLoggerModule,
+    DummyEventSource
 } from "flexible-core";
-import { DummyEventSource } from "flexible-dummy-source";
 import { AsyncContainerModule, interfaces, Container } from "inversify";
 import { DecoratorsFrameworkModuleBuilder } from "../../src/decorators-framework-module-builder"
 import { ExplicitControllerLoader } from "../../src";
-import { 
-    BasicController, 
-    RouteMiddlewareController, 
-    SingletonController, 
-    StackMiddlewareController, 
+import {
+    BasicController,
+    RouteMiddlewareController,
+    SingletonController,
+    StackMiddlewareController,
     WithDependenciesController} from "./test-controllers";
 import { D1, D2 } from "./dependency-keys";
 
@@ -68,7 +68,7 @@ describe(`DecoratedApp`, () => {
             .withContainer(container)
             .createApp();
 
-        
+
     })
 
     it("should start correctly", async () => {
@@ -78,7 +78,7 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(result[0]).toEqual(true)
-        
+
     })
 
     it("should respond to route request with response", async () => {
@@ -97,9 +97,9 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0]).toBe(data);
-        
+
     })
-    
+
     it("should respond to route request outside of singleton scope", async () => {
         //ARRANGE
         const data = { data: "data" };
@@ -122,7 +122,7 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0].callNumber).toBe(1);
-        
+
     })
 
     it("should respond to route request in singleton scope", async () => {
@@ -147,7 +147,7 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0].callNumber).toBe(2);
-        
+
     })
 
     it("should execute middleware before method", async () => {
@@ -170,7 +170,7 @@ describe(`DecoratedApp`, () => {
             eventType: "middlewareBefore"
         });
         expect(response[0].responseStack[1]).toEqual(data);
-        
+
     })
 
     it("should execute middleware after method", async () => {
@@ -193,7 +193,7 @@ describe(`DecoratedApp`, () => {
             configValue: "configValue",
             eventType: "middlewareAfter"
         });
-        
+
     })
 
     it("should execute middleware stack", async () => {
@@ -219,7 +219,7 @@ describe(`DecoratedApp`, () => {
             configValue: "2",
             eventType: "stackMiddleware"
         });
-        
+
         expect(response[0].responseStack[2]).toEqual(data);
 
         expect(response[0].responseStack[3]).toEqual({
@@ -230,14 +230,14 @@ describe(`DecoratedApp`, () => {
             configValue: "4",
             eventType: "stackMiddleware"
         });
-        
+
     })
-    
+
     it("should instanciate controller with dependencies correctly", async () => {
         //ARRANGE
         const data = { data: "data" };
         const routeData = { routeData: "routeData" };
-        
+
         //ACT
         await app.run();
 
@@ -249,7 +249,7 @@ describe(`DecoratedApp`, () => {
 
         //ASSERT
         expect(response[0].responseStack[0]).toBe(`${D1.toString()}#${D2.toString()}`);
-        
+
     })
 
 });
