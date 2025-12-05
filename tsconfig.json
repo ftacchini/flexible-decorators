@@ -3,7 +3,7 @@
         "module": "commonjs",
         "target": "ES2022",
         "lib": ["ES2022"],
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "strict": false,
         "removeComments": true,
         "sourceMap": true,

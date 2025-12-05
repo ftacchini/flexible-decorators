@@ -8,7 +8,7 @@ import {
     SilentLoggerModule,
     DummyEventSource
 } from "flexible-core";
-import { AsyncContainerModule, interfaces, Container } from "inversify";
+import { ContainerModule, Container } from "inversify";
 import { DecoratorsFrameworkModuleBuilder } from "../../src/decorators-framework-module-builder"
 import { ExplicitControllerLoader } from "../../src";
 import {
@@ -31,11 +31,7 @@ describe(`DecoratedApp`, () => {
         container = new Container();
 
         let dependenciesModule: FlexibleModule = {
-            container: new AsyncContainerModule(async (
-                bind: interfaces.Bind,
-                unbind: interfaces.Unbind,
-                isBound: interfaces.IsBound,
-                rebind: interfaces.Rebind) => {
+            container: new ContainerModule(({ bind, unbind, isBound, rebind }) => {
                     bind(D1).toConstantValue(D1.toString());
                     bind(D2).toConstantValue(D2.toString());
             })
@@ -43,11 +39,10 @@ describe(`DecoratedApp`, () => {
 
         let eventSourceModule: FlexibleEventSourceModule = {
             getInstance: () => eventSource,
-            container: new AsyncContainerModule(async (
-                bind: interfaces.Bind) => {
+            container: new ContainerModule(({ bind }) => {
 
                  }),
-            isolatedContainer: new AsyncContainerModule(async () => { })
+            isolatedContainer: new ContainerModule(() => { })
         };
 
         let frameworkModule = DecoratorsFrameworkModuleBuilder.instance
