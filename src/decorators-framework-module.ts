@@ -1,5 +1,5 @@
 import { FlexibleFrameworkModule } from "flexible-core";
-import { AsyncContainerModule, Container, interfaces } from "inversify";
+import { ContainerModule, Container } from "inversify";
 import { ControllerFactory, ControllerLoader } from "./controller";
 import { DecoratorsFramework } from "./decorators-framework";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
@@ -11,13 +11,8 @@ export class DecoratorsFrameworkModule implements FlexibleFrameworkModule {
     ) {
     }
 
-    public get isolatedContainer(): AsyncContainerModule {
-        var module = new AsyncContainerModule(async (
-            bind: interfaces.Bind,
-            unbind: interfaces.Unbind,
-            isBound: interfaces.IsBound,
-            rebind: interfaces.Rebind) => {
-
+    public get isolatedContainer(): ContainerModule {
+        var module = new ContainerModule(({ bind, unbind, isBound, rebind }) => {
             isBound(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK) || bind(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK).to(DecoratorsFramework);
             isBound(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER) || bind(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER).toConstantValue(this.controllerLoader);
             isBound(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_FACTORY) || bind(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_FACTORY).to(ControllerFactory);
@@ -26,12 +21,8 @@ export class DecoratorsFrameworkModule implements FlexibleFrameworkModule {
         return module;
     }
 
-    public get container(): AsyncContainerModule {
-        var module = new AsyncContainerModule(async (
-            bind: interfaces.Bind,
-            unbind: interfaces.Unbind,
-            isBound: interfaces.IsBound,
-            rebind: interfaces.Rebind) => {
+    public get container(): ContainerModule {
+        var module = new ContainerModule(({ bind, unbind, isBound, rebind }) => {
         });
 
         return module;

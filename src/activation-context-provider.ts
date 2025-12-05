@@ -10,12 +10,13 @@ export function ActivationContextProvider<T extends object>(
 
     return {
         activate: function(
-            contextBinnacle: { [key: string]: string }, 
+            _contextBinnacle: { [key: string]: any },
             ...params: any[]) {
 
             var middleware: T;
-            
+
             if(singleton) {
+                // Store singleton instance on activation context for reuse across requests
                 middleware = this.controller || (this.controller = recipeFactory.createController({
                     configuration: configuration,
                     type: target

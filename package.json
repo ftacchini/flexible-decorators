@@ -27,12 +27,13 @@
     "@types/node": "^22.10.1",
     "flexible-core": "^0.2.0",
     "include-all": "^4.0.3",
-    "inversify": "^6.0.3",
+    "inversify": "^7.10.5",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "@types/jasmine": "^5.1.4",
+    "@types/lodash": "^4.17.13",
     "jasmine": "^5.5.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.7.2"
