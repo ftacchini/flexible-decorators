@@ -9,7 +9,7 @@ import {
     DummyEventSource
 } from "flexible-core";
 import { ContainerModule, Container } from "inversify";
-import { DecoratorsFrameworkModuleBuilder } from "../../src/decorators-framework-module-builder"
+import { DecoratorsFrameworkModule } from "../../src/decorators-framework-module-builder"
 import { ExplicitControllerLoader } from "../../src";
 import {
     BasicController,
@@ -45,7 +45,7 @@ describe(`DecoratedApp`, () => {
             isolatedContainer: new ContainerModule(() => { })
         };
 
-        let frameworkModule = DecoratorsFrameworkModuleBuilder.instance
+        let frameworkModule = DecoratorsFrameworkModule.builder()
             .withControllerLoader(new ExplicitControllerLoader([
                 BasicController,
                 SingletonController,

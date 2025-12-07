@@ -5,12 +5,7 @@ export class DecoratorsFrameworkModuleBuilder {
 
     private controllerLoader!: ControllerLoader;
 
-    private static _instance: DecoratorsFrameworkModuleBuilder;
-    public static get instance() {
-        return this._instance || (this._instance = new DecoratorsFrameworkModuleBuilder());
-    }
-
-    private constructor() {
+    constructor() {
         this.reset();
     }
 
