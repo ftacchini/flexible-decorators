@@ -3,8 +3,17 @@ import { ContainerModule, Container } from "inversify";
 import { ControllerFactory, ControllerLoader } from "./controller";
 import { DecoratorsFramework } from "./decorators-framework";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
+import { DecoratorsFrameworkModuleBuilder } from "./decorators-framework-module-builder";
 
 export class DecoratorsFrameworkModule implements FlexibleFrameworkModule {
+
+    /**
+     * Creates a new builder for constructing DecoratorsFrameworkModule instances.
+     * @returns A new DecoratorsFrameworkModuleBuilder instance
+     */
+    public static builder(): DecoratorsFrameworkModuleBuilder {
+        return new DecoratorsFrameworkModuleBuilder();
+    }
 
     constructor(
         private controllerLoader: ControllerLoader
