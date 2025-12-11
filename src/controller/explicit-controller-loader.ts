@@ -1,5 +1,5 @@
 import { Type } from "flexible-core";
-import { injectable } from "inversify";
+import { injectable } from "tsyringe";
 
 @injectable()
 export class ExplicitControllerLoader {

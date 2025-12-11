@@ -1,7 +1,7 @@
 import { EventData, IfEventIs } from "flexible-core";
 import { AfterExecution, BeforeExecution, Controller, Param, Route } from "../../src";
 import { TestMiddleware } from "./test-middleware";
-import { inject } from "inversify";
+import { inject } from "tsyringe";
 import { D1, D2 } from "./dependency-keys";
 
 @Controller()

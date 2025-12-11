@@ -8,7 +8,7 @@ import {
     FlexibleRecipe,
     Type
 } from "flexible-core";
-import { injectable, inject } from "inversify";
+import { injectable, inject } from "tsyringe";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
 import { ControllerLoader } from "./controller/controller-loader";
 import { flatten } from "lodash";
@@ -116,7 +116,7 @@ export class DecoratorsFramework implements FlexibleFramework {
             })
             .sort((a,b) => a.priority - b.priority)
             .reduce((result, element) => {
-                result[element.priority <= 0 ? 0 : 1].push(element); 
+                result[element.priority <= 0 ? 0 : 1].push(element);
                 return result;
             }, [[], []]);
     }

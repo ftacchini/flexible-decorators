@@ -1,5 +1,5 @@
-import { FlexibleFrameworkModule } from "flexible-core";
-import { ContainerModule, Container } from "inversify";
+import { FlexibleFrameworkModule, FlexibleContainer } from "flexible-core";
+import { DependencyContainer } from "tsyringe";
 import { ControllerFactory, ControllerLoader } from "./controller";
 import { DecoratorsFramework } from "./decorators-framework";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
@@ -20,25 +20,30 @@ export class DecoratorsFrameworkModule implements FlexibleFrameworkModule {
     ) {
     }
 
-    public get isolatedContainer(): ContainerModule {
-        var module = new ContainerModule(({ bind, unbind, isBound, rebind }) => {
-            isBound(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK) || bind(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK).to(DecoratorsFramework);
-            isBound(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER) || bind(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER).toConstantValue(this.controllerLoader);
-            isBound(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_FACTORY) || bind(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_FACTORY).to(ControllerFactory);
-        });
+    public registerIsolated(container: DependencyContainer): void {
+        if (!container.isRegistered(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK)) {
+            container.register(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK, { useClass: DecoratorsFramework });
+        }
+        if (!container.isRegistered(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER)) {
+            container.register(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_LOADER, { useValue: this.controllerLoader });
+        }
+        if (!container.isRegistered(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_FACTORY)) {
+            container.register(DECORATORS_FRAMEWORK_TYPES.CONTROLLER_FACTORY, { useClass: ControllerFactory });
+        }
 
-        return module;
+        // Debug: Log what tokens are available in this container
+        console.log("[DEBUG] DecoratorsFrameworkModule isolated container setup complete");
     }
 
-    public get container(): ContainerModule {
-        var module = new ContainerModule(({ bind, unbind, isBound, rebind }) => {
-        });
-
-        return module;
+    public register(container: DependencyContainer): void {
+        // No shared container bindings for decorators framework
     }
 
-    public getInstance(container: Container): DecoratorsFramework {
-        container.isBound(DECORATORS_FRAMEWORK_TYPES.CONTAINER) || container.bind(DECORATORS_FRAMEWORK_TYPES.CONTAINER).toConstantValue(container);
-        return container.get(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK);
+    public getInstance(container: FlexibleContainer): DecoratorsFramework {
+        const tsyringeContainer = container.getContainer();
+        if (!tsyringeContainer.isRegistered(DECORATORS_FRAMEWORK_TYPES.CONTAINER)) {
+            tsyringeContainer.register(DECORATORS_FRAMEWORK_TYPES.CONTAINER, { useValue: tsyringeContainer });
+        }
+        return tsyringeContainer.resolve(DECORATORS_FRAMEWORK_TYPES.DECORATORS_FRAMEWORK);
     }
 }
