@@ -1,5 +1,5 @@
 import { FlexibleRecipe } from "flexible-core";
-import { injectable, inject, Container } from "inversify";
+import { injectable, inject, DependencyContainer } from "tsyringe";
 import { DECORATORS_FRAMEWORK_TYPES } from "../decorators-framework-types";
 
 const RECIPE_HAS_NO_TYPE_ERROR = "A controller has no specified type and cannot be crafted";
@@ -8,22 +8,22 @@ const RECIPE_HAS_NO_TYPE_ERROR = "A controller has no specified type and cannot 
 export class ControllerFactory {
 
     constructor(
-        @inject(DECORATORS_FRAMEWORK_TYPES.CONTAINER) private container: Container) {
+        @inject(DECORATORS_FRAMEWORK_TYPES.CONTAINER) private container: DependencyContainer) {
     }
 
     public createController<recipeType extends object>(
         recipe: FlexibleRecipe<recipeType>): recipeType {
-        
+
         if(!recipe || !recipe.type) {
             throw RECIPE_HAS_NO_TYPE_ERROR;
         }
 
-        if(!this.container.isBound(recipe.type.name)) {
-            this.container.bind(recipe.type.name).to(recipe.type);
+        if(!this.container.isRegistered(recipe.type)) {
+            this.container.register(recipe.type, { useClass: recipe.type });
         }
 
-        var instance = this.container.get<recipeType>(recipe.type.name);
-    
+        var instance = this.container.resolve<recipeType>(recipe.type);
+
         return Object.assign(instance, recipe.configuration || {});
     }
 

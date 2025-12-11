@@ -1,12 +1,12 @@
-import { injectable } from 'inversify';
+import { injectable } from 'tsyringe';
 import { CONTROLLER_KEY } from "./decorator-keys";
 import { FlexibleFilter, Type, FilterConfiguration } from 'flexible-core';
 
 export const Controller = function attributeDefinition<T extends (FlexibleFilter | undefined)>(
-    { singleton = false, filter, configuration } : { 
+    { singleton = false, filter, configuration } : {
         singleton?: boolean,
         filter?: Type<T>,
-        configuration?: FilterConfiguration<T> 
+        configuration?: FilterConfiguration<T>
     } = {}) {
 
     return (target: any) => {

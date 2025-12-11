@@ -8,8 +8,9 @@ import {
     SilentLoggerModule,
     DummyEventSource
 } from "flexible-core";
-import { ContainerModule, Container } from "inversify";
-import { DecoratorsFrameworkModule } from "../../src/decorators-framework-module-builder"
+import { FlexibleContainer } from "flexible-core";
+import { DependencyContainer } from "tsyringe";
+import { DecoratorsFrameworkModule } from "../../src/decorators-framework-module"
 import { ExplicitControllerLoader } from "../../src";
 import {
     BasicController,
@@ -23,26 +24,28 @@ describe(`DecoratedApp`, () => {
 
     let app: FlexibleApp;
     let eventSource: DummyEventSource;
-    let container: Container;
+    let container: FlexibleContainer;
 
     beforeEach(async () => {
         eventSource = new DummyEventSource();
 
-        container = new Container();
+        container = new FlexibleContainer();
 
         let dependenciesModule: FlexibleModule = {
-            container: new ContainerModule(({ bind, unbind, isBound, rebind }) => {
-                    bind(D1).toConstantValue(D1.toString());
-                    bind(D2).toConstantValue(D2.toString());
-            })
+            register: (container: DependencyContainer) => {
+                container.register(D1, { useValue: D1.toString() });
+                container.register(D2, { useValue: D2.toString() });
+            }
         };
 
         let eventSourceModule: FlexibleEventSourceModule = {
             getInstance: () => eventSource,
-            container: new ContainerModule(({ bind }) => {
-
-                 }),
-            isolatedContainer: new ContainerModule(() => { })
+            register: (container: DependencyContainer) => {
+                // No shared container bindings
+            },
+            registerIsolated: (container: DependencyContainer) => {
+                // No isolated container bindings
+            }
         };
 
         let frameworkModule = DecoratorsFrameworkModule.builder()
@@ -55,7 +58,7 @@ describe(`DecoratedApp`, () => {
             ]))
             .build();
 
-        app = FlexibleAppBuilder.instance
+        app = FlexibleApp.builder()
             .withLogger(new SilentLoggerModule())
             .addModule(dependenciesModule)
             .addEventSource(eventSourceModule)

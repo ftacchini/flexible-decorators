@@ -1,6 +1,6 @@
 import { EventType } from "flexible-core";
 import { Param } from "../../src";
-import { injectable } from "inversify";
+import { injectable } from "tsyringe";
 
 @injectable()
 export class TestMiddleware {
