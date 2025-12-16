@@ -5,3 +5,4 @@ export * from "./decorators-framework-types";
 export * from "./activation-context-provider";
 export * from "./decorators";
 export * from "./controller";
+export * from "./middleware";
