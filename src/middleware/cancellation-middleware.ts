@@ -1,12 +1,11 @@
-import { injectable } from 'tsyringe';
-import { CancellationService, ContextBinnacle, FullEvent, FlexibleEvent } from 'flexible-core';
+import { injectable, inject } from 'tsyringe';
+import { CancellationService, ContextBinnacle, FullEvent, FlexibleEvent, FlexibleLogger, FLEXIBLE_APP_TYPES } from 'flexible-core';
 import { Param } from '../decorators/parameter';
 
 /**
  * Decorator-compatible middleware wrapper for CancellationService.
  *
- * This middleware works with @BeforeExecution by using @Param decorators
- * to extract contextBinnacle and event, then delegating to CancellationService.
+ * This middleware doesn't require configuration.
  *
  * @example
  * ```typescript
@@ -22,20 +21,18 @@ import { Param } from '../decorators/parameter';
  */
 @injectable()
 export class CancellationMiddleware {
-    constructor(
-        private cancellationService: CancellationService
-    ) {}
+    private service: CancellationService;
 
-    /**
-     * Processes an event by delegating to CancellationService.
-     *
-     * @param contextBinnacle - Extracted via @Param(ContextBinnacle)
-     * @param event - Extracted via @Param(FullEvent)
-     */
+    constructor(
+        @inject(FLEXIBLE_APP_TYPES.LOGGER) logger: FlexibleLogger
+    ) {
+        this.service = new CancellationService(logger);
+    }
+
     public async processEvent(
         @Param(ContextBinnacle) contextBinnacle: { [key: string]: any },
         @Param(FullEvent) event?: FlexibleEvent
     ): Promise<void> {
-        await this.cancellationService.processEvent(contextBinnacle, event);
+        await this.service.processEvent(contextBinnacle, event);
     }
 }
