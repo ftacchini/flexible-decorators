@@ -10,7 +10,7 @@ export function ActivationContextProvider<T extends object>(
 
     return {
         activate: function(
-            _contextBinnacle: { [key: string]: any },
+            contextBinnacle: { [key: string]: any },
             ...params: any[]) {
 
             var middleware: T;
