@@ -1,6 +1,6 @@
 import { FlexibleRecipe } from "flexible-core";
 import { injectable, inject, DependencyContainer } from "tsyringe";
-import { DECORATORS_FRAMEWORK_TYPES } from "../decorators-framework-types";
+import { DECORATORS_FRAMEWORK_TYPES } from "../framework/decorators-framework-types";
 
 const RECIPE_HAS_NO_TYPE_ERROR = "A controller has no specified type and cannot be crafted";
 
