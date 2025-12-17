@@ -1,6 +1,6 @@
 import { FlexibleFrameworkModule, FlexibleContainer } from "flexible-core";
 import { DependencyContainer } from "tsyringe";
-import { ControllerFactory, ControllerLoader } from "./controller";
+import { ControllerFactory, ControllerLoader } from "../controller";
 import { DecoratorsFramework } from "./decorators-framework";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
 import { DecoratorsFrameworkModuleBuilder } from "./decorators-framework-module-builder";

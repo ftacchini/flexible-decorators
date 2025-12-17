@@ -3,15 +3,13 @@ import "jasmine";
 import {
     FlexibleApp,
     FlexibleEventSourceModule,
-    FlexibleAppBuilder,
     FlexibleModule,
     SilentLoggerModule,
-    DummyEventSource
+    DummyEventSource,
+    FlexibleContainer
 } from "flexible-core";
-import { FlexibleContainer } from "flexible-core";
 import { DependencyContainer } from "tsyringe";
-import { DecoratorsFrameworkModule } from "../../src/decorators-framework-module"
-import { ExplicitControllerLoader } from "../../src";
+import { DecoratorsFrameworkModule, ExplicitControllerLoader } from "../../src";
 import {
     BasicController,
     RouteMiddlewareController,

@@ -1,5 +1,5 @@
 import { Type, FlexibleActivationContext } from "flexible-core";
-import { ControllerFactory } from "./controller";
+import { ControllerFactory } from "../controller";
 
 export function ActivationContextProvider<T extends object>(
     target: Type<T>,
@@ -10,7 +10,7 @@ export function ActivationContextProvider<T extends object>(
 
     return {
         activate: function(
-            _contextBinnacle: { [key: string]: any },
+            contextBinnacle: { [key: string]: any },
             ...params: any[]) {
 
             var middleware: T;

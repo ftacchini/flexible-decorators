@@ -1,4 +1,4 @@
-import { ControllerLoader, PathControllerLoader } from "./controller";
+import { ControllerLoader, PathControllerLoader } from "../controller";
 import { DecoratorsFrameworkModule } from "./decorators-framework-module";
 
 export class DecoratorsFrameworkModuleBuilder {
