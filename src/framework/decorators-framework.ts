@@ -10,15 +10,15 @@ import {
 } from "flexible-core";
 import { injectable, inject } from "tsyringe";
 import { DECORATORS_FRAMEWORK_TYPES } from "./decorators-framework-types";
-import { ControllerLoader } from "./controller/controller-loader";
+import { ControllerLoader } from "../controller/controller-loader";
 import { flatten } from "lodash";
-import { CONTROLLER_KEY, EXTRACTOR_KEY, MIDDLEWARE_KEY, ROUTE_KEY } from "./decorators/decorator-keys";
-import { ControllerDefinition } from "./decorators/controller";
-import { MiddlewareDefinition } from "./decorators/middleware";
+import { CONTROLLER_KEY, EXTRACTOR_KEY, MIDDLEWARE_KEY, ROUTE_KEY } from "../decorators/decorator-keys";
+import { ControllerDefinition } from "../decorators/controller";
+import { MiddlewareDefinition } from "../decorators/middleware";
 import { ActivationContextProvider } from "./activation-context-provider";
-import { RouteDefinition } from "./decorators/route";
-import { ExtractorDefinition } from "./decorators/parameter";
-import { ControllerFactory } from "./controller";
+import { RouteDefinition } from "../decorators/route";
+import { ExtractorDefinition } from "../decorators/parameter";
+import { ControllerFactory } from "../controller";
 
 @injectable()
 export class DecoratorsFramework implements FlexibleFramework {

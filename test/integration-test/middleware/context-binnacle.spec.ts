@@ -1,9 +1,7 @@
 import "reflect-metadata";
 import "jasmine";
-import { FlexibleApp } from "flexible-core";
-import { DummyEventSource } from "flexible-core";
-import { FlexibleEvent, IfEventIs, ContextBinnacle } from "flexible-core";
-import { DecoratorsFrameworkModule, ExplicitControllerLoader, Controller, Route, Param } from "../../src";
+import { FlexibleApp, DummyEventSource, FlexibleEvent, IfEventIs, ContextBinnacle } from "flexible-core";
+import { DecoratorsFrameworkModule, ExplicitControllerLoader, Controller, Route, Param } from "../../../src";
 
 describe("ContextBinnacle Extractor", () => {
 

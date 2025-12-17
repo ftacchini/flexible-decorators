@@ -1,5 +1,5 @@
 import { Type, FlexibleActivationContext } from "flexible-core";
-import { ControllerFactory } from "./controller";
+import { ControllerFactory } from "../controller";
 
 export function ActivationContextProvider<T extends object>(
     target: Type<T>,
